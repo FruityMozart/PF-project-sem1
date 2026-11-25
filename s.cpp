@@ -12,7 +12,9 @@ using namespace std;
 int screen_x = 1136;
 int screen_y = 896;
 
-void display_level(RenderWindow& window, char** lvl, Texture& bgTex, Sprite& bgSprite, Texture& blockTexture, Sprite& blockSprite, const int height, const int width, const int cell_size)
+
+
+void display_level(RenderWindow& window, char lvl[][18], Texture& bgTex, Sprite& bgSprite, Texture& blockTexture, Sprite& blockSprite, const int height, const int width, const int cell_size)
 {
     window.draw(bgSprite);
 
@@ -29,7 +31,7 @@ void display_level(RenderWindow& window, char** lvl, Texture& bgTex, Sprite& bgS
     }
 }
 
-void player_gravity(char** lvl, float& offset_y, float& velocityY, bool& onGround, const float& gravity, float& terminal_Velocity, float& player_x, float& player_y, const int cell_size, int& Pheight, int& Pwidth, const int height)
+void player_gravity(char lvl[][18], float& offset_y, float& velocityY, bool& onGround, const float& gravity, float& terminal_Velocity, float& player_x, float& player_y, const int cell_size, int& Pheight, int& Pwidth, const int height)
 {
     offset_y = player_y + velocityY;
 
@@ -100,7 +102,8 @@ int main()
     const int cell_size = 64;
     const int height = 14;
     const int width = 18;
-    char** lvl;
+    char lvl[height][width];
+
 
     // Level and background textures and sprites
     Texture bgTex;
@@ -143,6 +146,8 @@ int main()
 
     int PlayerHeight = 96;
     int PlayerWidth = 54;
+    int duckHeight = 48;
+    int normal_height = 96;
 
     PlayerTexture.loadFromFile("Data/player.png");
     PlayerSprite.setTexture(PlayerTexture);
@@ -150,10 +155,8 @@ int main()
     PlayerSprite.setPosition(player_x, player_y);
 
     // Creating and initializing level array
-    lvl = new char* [height];
     for (int i = 0; i < height; i += 1)
     {
-        lvl[i] = new char[width];
         for (int j = 0; j < width; j += 1)
         {
             lvl[i][j] = ' ';
@@ -190,7 +193,7 @@ int main()
         // Call movement and jump from movement.h
         player_movement(lvl, player_x, player_y, player_speed, cell_size, PlayerHeight, PlayerWidth, width, height, PlayerSprite, player_scale);
         player_jump(velocityY, onGround, jump_strength);
-
+        player_duck(lvl, player_y, PlayerHeight, normal_height, duckHeight, PlayerWidth, cell_size, onGround, PlayerSprite, player_scale);
         player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, height);
 
         PlayerSprite.setPosition(player_x, player_y);
@@ -201,11 +204,7 @@ int main()
 
     // Stopping music and deleting level array
     lvlMusic.stop();
-    for (int i = 0; i < height; i++)
-    {
-        delete[] lvl[i];
-    }
-    delete[] lvl;
+   
 
     return 0;
 }
