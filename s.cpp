@@ -194,7 +194,7 @@ int main()
 
         // Call movement and jump from movement.h
         player_duck(lvl, player_y, PlayerHeight, normal_height, duckHeight, PlayerWidth, cell_size, onGround, PlayerSprite,PlayerTexture, PlayerDuckTexture);
-        player_movement(lvl, player_x, player_y, player_speed, cell_size, PlayerHeight, PlayerWidth, width, height, PlayerSprite, player_scale);
+        player_movement(lvl, player_x, player_y, player_speed, cell_size, PlayerHeight, PlayerWidth, width, height, PlayerSprite, player_scale,duckHeight);
         player_jump(velocityY, onGround, jump_strength);
         player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, height);
 

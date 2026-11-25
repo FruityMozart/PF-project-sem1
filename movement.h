@@ -4,12 +4,13 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 
-void player_movement(char lvl[][18], float& player_x, float& player_y, float speed, const int cell_size, int Pheight, int Pwidth,const int width, const int height, Sprite& PlayerSprite, float scale)
+void player_movement(char lvl[][18], float& player_x, float& player_y, float speed, const int cell_size, int Pheight, int Pwidth,const int width, const int height, Sprite& PlayerSprite, float scale,int duck_height)
 {   float offset_x = player_x;
-
+    // Move at half speed while crouching
+    float current_speed = (Pheight == duck_height) ? speed * 0.5f : speed;
     // Move Left (Left Arrow or A)
     if (Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))
-    {  offset_x -= speed;
+    {  offset_x -= current_speed;
 
         // Flip sprite to face left
         PlayerSprite.setOrigin(PlayerSprite.getLocalBounds().width, 0);
@@ -35,7 +36,7 @@ void player_movement(char lvl[][18], float& player_x, float& player_y, float spe
     // Move Right (Right Arrow or D)
     if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))
     {
-        offset_x += speed;
+        offset_x += current_speed;
 
         // Flip sprite to face right
         PlayerSprite.setOrigin(0, 0);
@@ -81,7 +82,9 @@ void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_heigh
             // Move player_y down so feet stay on the ground when height shrinks
             player_y += (normal_height - duck_height);
             Pheight = duck_height;
-            PlayerSprite.setTexture(duckTex, true); 
+            PlayerSprite.setTexture(duckTex, true);
+            if (PlayerSprite.getScale().x < 0)
+                PlayerSprite.setOrigin(PlayerSprite.getLocalBounds().width, 0);
         }
     }
     else if (Pheight == duck_height)
@@ -97,6 +100,8 @@ void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_heigh
             player_y = stand_y;
             Pheight = normal_height;
              PlayerSprite.setTexture(normalTex, true);
+             if (PlayerSprite.getScale().x < 0)
+                PlayerSprite.setOrigin(PlayerSprite.getLocalBounds().width, 0);
         }
     }
 }
