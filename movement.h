@@ -71,7 +71,7 @@ void player_jump(float& velocityY, bool& onGround, float jump_strength)
     }
 }
 // duck
-void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_height, int duck_height, int Pwidth, const int cell_size, bool onGround, Sprite& PlayerSprite, float scale)
+void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_height, int duck_height, int Pwidth, const int cell_size, bool onGround, Sprite& PlayerSprite, Texture& normalTex, Texture& duckTex)
 {  bool wantsToDuck = (Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S)) && onGround;
 
     if (wantsToDuck)
@@ -81,7 +81,7 @@ void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_heigh
             // Move player_y down so feet stay on the ground when height shrinks
             player_y += (normal_height - duck_height);
             Pheight = duck_height;
-            PlayerSprite.setScale(PlayerSprite.getScale().x, scale * 0.5f); // Squash sprite vertically
+            PlayerSprite.setTexture(duckTex, true); 
         }
     }
     else if (Pheight == duck_height)
@@ -96,7 +96,7 @@ void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_heigh
         {
             player_y = stand_y;
             Pheight = normal_height;
-            PlayerSprite.setScale(PlayerSprite.getScale().x, scale); // Restore normal height
+             PlayerSprite.setTexture(normalTex, true);
         }
     }
 }
