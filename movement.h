@@ -106,6 +106,92 @@ void player_duck(char lvl[][18], float& player_y, int& Pheight, int normal_heigh
     }
 }
 
+// climb
+void climb_up(char lvl[][18], float player_x, float& player_y, float climb_speed, const int cell_size, int Pwidth)
+{   int mid_col = (int)(player_x + Pwidth / 2) / cell_size;
+    float next_y = player_y - climb_speed;
+    int next_top_row = (int)next_y / cell_size;
+
+    if (next_y >= 0 && lvl[next_top_row][mid_col] != '#')
+    {
+        player_y = next_y;
+    }
+}
+
+void climb_down(char lvl[][18], float player_x, float& player_y, float climb_speed, const int cell_size, int Pheight, int Pwidth, const int height, bool& isLadder)
+{
+    int mid_col = (int)(player_x + Pwidth / 2) / cell_size;
+    float next_y = player_y + climb_speed;
+    int next_bottom_row = (int)(next_y + Pheight - 1) / cell_size;
+
+    if (next_bottom_row < height && lvl[next_bottom_row][mid_col] != '#')
+    {
+        player_y = next_y;
+    }
+    else
+    {
+        isLadder = false; // Reached solid floor at bottom
+    }
+}
+
+// UP ROUTER: If on ladder ; climb_up(), else ; player_jump()
+void handle_up(char lvl[][18], float player_x, float& player_y, float& velocityY, bool& onGround, bool& isLadder, float jump_strength, float climb_speed, const int cell_size, int Pheight, int Pwidth)
+{
+    int mid_col = (int)(player_x + Pwidth / 2) / cell_size;
+    int top_row = (int)player_y / cell_size;
+    int bottom_row = (int)(player_y + Pheight - 1) / cell_size;
+    bool touchingLadder = (lvl[top_row][mid_col] == 'H' || lvl[bottom_row][mid_col] == 'H');
+
+    bool upPressed = Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W);
+
+    if (upPressed && touchingLadder)
+    {
+        isLadder = true;
+        onGround = false;
+        velocityY = 0;
+    }
+
+    if (isLadder)
+    {
+        if (!touchingLadder) 
+        { isLadder = false; return; }
+        if (upPressed)
+        climb_up(lvl, player_x, player_y, climb_speed, cell_size, Pwidth);
+    }
+    else
+    {
+        player_jump(velocityY, onGround, jump_strength);
+    }
+}
+
+// DOWN ROUTER: If on ladder ; climb_down(), else ; duck()
+void handle_down(char lvl[][18], float player_x, float& player_y, float& velocityY, int& Pheight, int normal_height, int duck_height, int Pwidth, const int cell_size, const int height, bool& onGround, bool& isLadder, float climb_speed, Sprite& PlayerSprite, Texture& normalTex, Texture& duckTex)
+{
+    int mid_col = (int)(player_x + Pwidth / 2) / cell_size;
+    int top_row = (int)player_y / cell_size;
+    int bottom_row = (int)(player_y + Pheight - 1) / cell_size;
+    bool touchingLadder = (lvl[top_row][mid_col] == 'H' || lvl[bottom_row][mid_col] == 'H');
+
+    bool downPressed = Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S);
+
+    if (downPressed && touchingLadder)
+    {
+        isLadder = true;
+        onGround = false;
+        velocityY = 0;
+    }
+
+    if (isLadder)
+    {
+        if (!touchingLadder) { isLadder = false; return; }
+        if (downPressed) climb_down(lvl, player_x, player_y, climb_speed, cell_size, Pheight, Pwidth, height, isLadder);
+    }
+    else
+    {
+        player_duck(lvl, player_y, Pheight, normal_height, duck_height, Pwidth, cell_size, onGround, PlayerSprite, normalTex, duckTex);
+    }
+}
+
 
 #endif
 

@@ -13,8 +13,8 @@ int screen_x = 1136;
 int screen_y = 896;
 
 
+void display_level(RenderWindow& window, char lvl[][18], Texture& bgTex, Sprite& bgSprite, Texture& blockTexture, Sprite& blockSprite, Sprite& ladderSprite, const int height, const int width, const int cell_size)
 
-void display_level(RenderWindow& window, char lvl[][18], Texture& bgTex, Sprite& bgSprite, Texture& blockTexture, Sprite& blockSprite, const int height, const int width, const int cell_size)
 {
     window.draw(bgSprite);
 
@@ -27,12 +27,17 @@ void display_level(RenderWindow& window, char lvl[][18], Texture& bgTex, Sprite&
                 blockSprite.setPosition(j * cell_size, i * cell_size);
                 window.draw(blockSprite);
             }
+            else if (lvl[i][j] == 'H') 
+            {
+              ladderSprite.setPosition(j * cell_size, i * cell_size);
+               window.draw(ladderSprite);
+             }
         }
     }
 }
 
-void player_gravity(char lvl[][18], float& offset_y, float& velocityY, bool& onGround, const float& gravity, float& terminal_Velocity, float& player_x, float& player_y, const int cell_size, int& Pheight, int& Pwidth, const int height)
-{
+void player_gravity(char lvl[][18], float& offset_y, float& velocityY, bool& onGround, const float& gravity, float& terminal_Velocity, float& player_x, float& player_y, const int cell_size, int& Pheight, int& Pwidth, const int height,bool isLadder)
+{   if (isLadder) return;
     offset_y = player_y + velocityY;
 
     int left_col = (int)(player_x + 2) / cell_size;
@@ -139,6 +144,15 @@ int main()
     Sprite PlayerSprite;
 
     bool onGround = false;
+    
+    bool isLadder = false;
+float climb_speed = 4.0f;
+
+Texture ladderTexture;
+Sprite ladderSprite;
+ladderTexture.loadFromFile("Data/ladder.png");
+ladderSprite.setTexture(ladderTexture);
+
 
     float offset_y = 0;
     float velocityY = 0;
@@ -170,6 +184,11 @@ int main()
     {
         lvl[13][j] = '#';
     }
+    for (int i = 8; i <= 12; i++)
+{
+    lvl[i][5] = 'H';
+}
+
 
     Event ev;
     // Main loop
@@ -190,13 +209,14 @@ int main()
         }
 
         window.clear();
-        display_level(window, lvl, bgTex, bgSprite, blockTexture, blockSprite, height, width, cell_size);
+        display_level(window, lvl, bgTex, bgSprite, blockTexture, blockSprite, ladderSprite, height, width, cell_size);
+
 
         // Call movement and jump from movement.h
-        player_duck(lvl, player_y, PlayerHeight, normal_height, duckHeight, PlayerWidth, cell_size, onGround, PlayerSprite,PlayerTexture, PlayerDuckTexture);
+        handle_up(lvl, player_x, player_y, velocityY, onGround, isLadder, jump_strength, climb_speed, cell_size, PlayerHeight, PlayerWidth);
+handle_down(lvl, player_x, player_y, velocityY, PlayerHeight, normal_height, duckHeight, PlayerWidth, cell_size, height, onGround, isLadder, climb_speed, PlayerSprite, PlayerTexture, PlayerDuckTexture);
         player_movement(lvl, player_x, player_y, player_speed, cell_size, PlayerHeight, PlayerWidth, width, height, PlayerSprite, player_scale,duckHeight);
-        player_jump(velocityY, onGround, jump_strength);
-        player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, height);
+        player_gravity(lvl, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, height,isLadder);
 
         PlayerSprite.setPosition(player_x, player_y);
         window.draw(PlayerSprite);
